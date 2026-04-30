@@ -4,46 +4,30 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Facebook, Shield, CheckCircle2, AlertCircle } from "lucide-react";
-import { doc, updateDoc } from "firebase/firestore";
-import { db, auth, facebookProvider } from "@/lib/firebase";
-import { linkWithPopup, FacebookAuthProvider } from "firebase/auth";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Settings() {
-  const { profile, user } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const handleLinkFacebook = async () => {
-    if (!user) return;
     setLoading(true);
     setError("");
     setSuccess("");
     try {
-      // Link the account
-      await linkWithPopup(user, facebookProvider);
-      
-      // Update our custom profile in Firestore
-      const userRef = doc(db, "users", user.uid);
-      await updateDoc(userRef, {
-        "linkedAccounts.facebook": true
-      });
-      
-      setSuccess("Facebook account linked successfully!");
+      // In Auth.js, we'd redirect to /api/auth/signin/facebook
+      window.location.href = "/api/auth/signin/facebook";
     } catch (err: any) {
       console.error(err);
-      if (err.code === "auth/credential-already-in-use") {
-        setError("This Facebook account is already linked to another ChatPilot user.");
-      } else {
-        setError(err.message || "Failed to link Facebook account.");
-      }
+      setError("Failed to link account.");
     } finally {
       setLoading(false);
     }
   };
 
-  const isFacebookLinked = profile?.linkedAccounts?.facebook || user?.providerData.some(p => p.providerId === "facebook.com");
+  const isFacebookLinked = false; // Placeholder for backend check
 
   return (
     <DashboardLayout>

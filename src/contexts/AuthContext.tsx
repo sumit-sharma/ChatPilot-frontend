@@ -1,68 +1,55 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { 
-  User, 
-  onAuthStateChanged, 
-  signOut as firebaseSignOut 
-} from 'firebase/auth';
-import { auth, db } from '../lib/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 interface AuthContextType {
-  user: User | null;
+  user: any | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  profile: any | null;
 }
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   signOut: async () => {},
-  profile: null,
 });
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [profile, setProfile] = useState<any | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setUser(user);
-      if (user) {
-        // Fetch user profile from Firestore
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        if (userDoc.exists()) {
-          setProfile(userDoc.data());
-        } else {
-          // Create initial profile
-          const initialProfile = {
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-            createdAt: new Date().toISOString(),
-            linkedAccounts: {
-              facebook: false,
-            }
-          };
-          await setDoc(doc(db, 'users', user.uid), initialProfile);
-          setProfile(initialProfile);
-        }
-      } else {
-        setProfile(null);
+  const fetchSession = async () => {
+    try {
+      const response = await fetch("/api/session");
+      if (response.ok) {
+        const session = await response.json();
+        setUser(session?.user || null);
       }
+    } catch (error) {
+      console.error("Failed to fetch session:", error);
+    } finally {
       setLoading(false);
-    });
+    }
+  };
 
-    return unsubscribe;
+  useEffect(() => {
+    fetchSession();
   }, []);
 
-  const signOut = () => firebaseSignOut(auth);
+  const signOut = async () => {
+    try {
+      // Auth.js signout typically involves clearing cookies.
+      // We can call /api/auth/signout
+      await fetch("/api/auth/signout", { method: "POST" });
+      setUser(null);
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signOut, profile }}>
+    <AuthContext.Provider value={{ user, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

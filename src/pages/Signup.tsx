@@ -5,9 +5,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import React, { useState } from "react";
-import { auth } from "../lib/firebase";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
-
 export default function Signup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -24,21 +21,23 @@ export default function Signup() {
     setLoading(true);
     setError("");
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth, 
-        formData.email, 
-        formData.password
-      );
-      
-      // Update display name
-      await updateProfile(userCredential.user, {
-        displayName: `${formData.firstName} ${formData.lastName}`.trim()
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
-      navigate("/dashboard");
+      if (response.ok) {
+        // After signup, we can automatically sign them in or redirect to login.
+        // Let's redirect to login for simplicity.
+        navigate("/login");
+      } else {
+        const data = await response.json();
+        setError(data.error || "Failed to create account. Please try again.");
+      }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Failed to create account. Please try again.");
+      setError("An unexpected error occurred. Please try again later.");
     } finally {
       setLoading(false);
     }

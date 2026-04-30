@@ -156,13 +156,13 @@ function AppSidebar({ currentPath }: { currentPath: string }) {
       <SidebarFooter className="border-t border-border/50 p-4">
         <div className="flex items-center gap-3 px-2">
           <Avatar className="h-9 w-9 border border-border shadow-sm">
-            <AvatarImage src={user?.photoURL || ""} />
+            <AvatarImage src={user?.image || ""} />
             <AvatarFallback className="bg-primary/5 text-primary text-xs font-bold">
-              {user?.displayName?.split(" ").map((n: string) => n[0]).join("") || "U"}
+              {user?.name?.split(" ").map((n: string) => n[0]).join("") || "U"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold truncate text-foreground">{user?.displayName || "User"}</p>
+            <p className="text-sm font-semibold truncate text-foreground">{user?.name || "User"}</p>
             <p className="text-[10px] text-muted-foreground truncate uppercase tracking-widest font-bold bg-primary/10 text-primary px-1.5 py-0.5 rounded-sm inline-block">Pro Plan</p>
           </div>
         </div>

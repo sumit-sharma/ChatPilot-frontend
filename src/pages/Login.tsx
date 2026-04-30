@@ -4,10 +4,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
-import { Zap, Github, Mail, Facebook } from "lucide-react";
+import { Facebook } from "lucide-react";
 import React, { useState } from "react";
-import { auth, googleProvider, facebookProvider } from "../lib/firebase";
-import { signInWithEmailAndPassword, signInWithPopup, sendPasswordResetEmail } from "firebase/auth";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -15,49 +13,42 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [resetSent, setResetSent] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
+      // POST to Auth.js credentials sign-in endpoint
+      const response = await fetch("/api/auth/signin/credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        // Auth.js expects these fields for Credentials provider
+        body: new URLSearchParams({
+          email,
+          password,
+          redirect: "false",
+        }),
+      });
+
+      if (response.ok) {
+        // Successful login, session cookie is set
+        // Reload to update AuthContext or navigate
+        window.location.href = "/dashboard";
+      } else {
+        setError("Invalid email or password. Please try again.");
+      }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Failed to sign in. Please check your credentials.");
+      setError("An unexpected error occurred. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSocialLogin = async (provider: any) => {
-    setLoading(true);
-    setError("");
-    try {
-      await signInWithPopup(auth, provider);
-      navigate("/dashboard");
-    } catch (err: any) {
-      console.error(err);
-      setError("Social login failed. Try again.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleForgotPassword = async () => {
-    if (!email) {
-      setError("Please enter your email address first.");
-      return;
-    }
-    try {
-      await sendPasswordResetEmail(auth, email);
-      setResetSent(true);
-      setError("");
-    } catch (err: any) {
-      setError("Could not send reset email.");
-    }
+  const handleSocialLogin = (provider: string) => {
+    // Redirect to Auth.js social login
+    window.location.href = `/api/auth/signin/${provider}`;
   };
 
   return (
@@ -87,17 +78,12 @@ export default function Login() {
                 {error}
               </div>
             )}
-            {resetSent && (
-              <div className="p-3 bg-green-500/10 border border-green-500/20 text-green-600 text-xs rounded-lg">
-                Password reset email sent! Check your inbox.
-              </div>
-            )}
             
             <div className="grid grid-cols-2 gap-3">
               <Button 
                 variant="outline" 
                 className="w-full gap-2" 
-                onClick={() => handleSocialLogin(googleProvider)}
+                onClick={() => handleSocialLogin('google')}
                 disabled={loading}
               >
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4" /> Google
@@ -105,7 +91,7 @@ export default function Login() {
               <Button 
                 variant="outline" 
                 className="w-full gap-2"
-                onClick={() => handleSocialLogin(facebookProvider)}
+                onClick={() => handleSocialLogin('facebook')}
                 disabled={loading}
               >
                 <Facebook className="w-4 h-4 text-[#1877F2] fill-[#1877F2]" /> Facebook
@@ -138,7 +124,6 @@ export default function Login() {
                   <Label htmlFor="password">Password</Label>
                   <button 
                     type="button"
-                    onClick={handleForgotPassword}
                     className="text-xs text-primary hover:underline"
                   >
                     Forgot password?

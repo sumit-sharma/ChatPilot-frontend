@@ -169,7 +169,7 @@ export default function Landing() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold italic">C</div>
-              <span className="font-bold text-xl">ChatFlow</span>
+              <span className="font-bold text-xl">ChatPilot</span>
             </div>
             <div className="flex gap-8 text-sm text-muted-foreground">
               <a href="#" className="hover:text-primary">Twitter</a>
@@ -177,7 +177,7 @@ export default function Landing() {
               <a href="#" className="hover:text-primary">Terms</a>
               <a href="#" className="hover:text-primary">Privacy</a>
             </div>
-            <p className="text-sm text-muted-foreground">© 2024 ChatFlow Inc. All rights reserved.</p>
+            <p className="text-sm text-muted-foreground">© 2024 ChatPilot Inc. All rights reserved.</p>
           </div>
         </div>
       </footer>

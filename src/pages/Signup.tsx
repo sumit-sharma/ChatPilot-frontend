@@ -5,6 +5,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import React, { useState } from "react";
+import { authClient } from "../lib/auth-client";
+
 export default function Signup() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -21,19 +23,17 @@ export default function Signup() {
     setLoading(true);
     setError("");
     try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const { data, error } = await authClient.signUp.email({
+        email: formData.email,
+        password: formData.password,
+        name: `${formData.firstName} ${formData.lastName}`.trim(),
+        callbackURL: "/dashboard"
       });
 
-      if (response.ok) {
-        // After signup, we can automatically sign them in or redirect to login.
-        // Let's redirect to login for simplicity.
-        navigate("/login");
+      if (error) {
+        setError(error.message || "Failed to create account.");
       } else {
-        const data = await response.json();
-        setError(data.error || "Failed to create account. Please try again.");
+        navigate("/dashboard");
       }
     } catch (err: any) {
       console.error(err);

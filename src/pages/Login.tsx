@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "motion/react";
 import { Facebook } from "lucide-react";
 import React, { useState } from "react";
+import { authClient } from "../lib/auth-client";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -19,24 +20,16 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      // POST to Auth.js credentials sign-in endpoint
-      const response = await fetch("/api/auth/signin/credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        // Auth.js expects these fields for Credentials provider
-        body: new URLSearchParams({
-          email,
-          password,
-          redirect: "false",
-        }),
+      const { data, error } = await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: "/dashboard"
       });
 
-      if (response.ok) {
-        // Successful login, session cookie is set
-        // Reload to update AuthContext or navigate
-        window.location.href = "/dashboard";
+      if (error) {
+        setError(error.message || "Invalid email or password.");
       } else {
-        setError("Invalid email or password. Please try again.");
+        navigate("/dashboard");
       }
     } catch (err: any) {
       console.error(err);
@@ -46,9 +39,15 @@ export default function Login() {
     }
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // Redirect to Auth.js social login
-    window.location.href = `/api/auth/signin/${provider}`;
+  const handleSocialLogin = async (provider: 'google' | 'github' | 'facebook') => {
+    try {
+      await authClient.signIn.social({
+        provider,
+        callbackURL: "/dashboard"
+      });
+    } catch (err) {
+      setError("Social login failed. Please try again.");
+    }
   };
 
   return (

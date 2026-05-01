@@ -28,7 +28,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/store/authStore";
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
@@ -78,7 +78,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 }
 
 function AppSidebar({ currentPath }: { currentPath: string }) {
-  const { user, signOut } = useAuth();
+  const { user, signOut } = useAuthStore();
   const navigate = useNavigate();
 
   const menuItems = [

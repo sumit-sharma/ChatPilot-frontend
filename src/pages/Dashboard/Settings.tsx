@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Facebook, Shield, CheckCircle2, AlertCircle } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuthStore } from "@/store/authStore";
+import { authClient } from "@/lib/auth-client";
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -17,17 +18,20 @@ export default function Settings() {
     setError("");
     setSuccess("");
     try {
-      // In Auth.js, we'd redirect to /api/auth/signin/facebook
-      window.location.href = "/api/auth/signin/facebook";
+      await authClient.signIn.social({
+        provider: "facebook",
+        callbackURL: window.location.href,
+      });
     } catch (err: any) {
       console.error(err);
-      setError("Failed to link account.");
+      setError("Failed to start account linking process.");
     } finally {
       setLoading(false);
     }
   };
 
-  const isFacebookLinked = false; // Placeholder for backend check
+  // We can check if Facebook is linked by inspecting user.accounts or similar metadata from Better Auth
+  const isFacebookLinked = user?.image?.includes("facebook") || false; 
 
   return (
     <DashboardLayout>

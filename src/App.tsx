@@ -13,10 +13,11 @@ import Chatbots from "./pages/Dashboard/Chatbots";
 import Messages from "./pages/Dashboard/Messages";
 import Settings from "./pages/Dashboard/Settings";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
+import { useAuthStore } from "./store/authStore";
+import { useEffect } from "react";
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuthStore();
 
   if (loading) {
     return (
@@ -34,26 +35,30 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default function App() {
+  const { syncSession } = useAuthStore();
+
+  useEffect(() => {
+    syncSession();
+  }, [syncSession]);
+
   return (
-    <AuthProvider>
-      <TooltipProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            
-            <Route path="/dashboard" element={<ProtectedRoute><Overview /></ProtectedRoute>} />
-            <Route path="/dashboard/chatbots" element={<ProtectedRoute><Chatbots /></ProtectedRoute>} />
-            <Route path="/dashboard/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
-            <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
-            
-            {/* Fallback to home */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Router>
-      </TooltipProvider>
-    </AuthProvider>
+    <TooltipProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          
+          <Route path="/dashboard" element={<ProtectedRoute><Overview /></ProtectedRoute>} />
+          <Route path="/dashboard/chatbots" element={<ProtectedRoute><Chatbots /></ProtectedRoute>} />
+          <Route path="/dashboard/messages" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
+          <Route path="/dashboard/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          
+          {/* Fallback to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Router>
+    </TooltipProvider>
   );
 }
 

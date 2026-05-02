@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { useAuthStore } from "@/store/auth-store";
+import { useAuthStore } from "@/store/authStore";
 
 export function AuthSync() {
-  const { isAuthenticated, accessToken } = useAuthStore();
+  const syncSession = useAuthStore((state) => state.syncSession);
 
   useEffect(() => {
-    // Sync token to cookie on mount/hydration so middleware & SSR can access it
-    if (isAuthenticated && accessToken) {
-      document.cookie = `access_token=${accessToken}; path=/; max-age=86400; SameSite=Lax`;
-    }
-  }, [isAuthenticated, accessToken]);
+    syncSession();
+  }, [syncSession]);
 
   return null;
 }

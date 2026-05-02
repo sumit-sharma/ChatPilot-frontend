@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import { 
   BarChart3, 
   MessageSquare, 
@@ -11,7 +13,8 @@ import {
   Search,
   LogOut
 } from "lucide-react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { 
   Sidebar, 
@@ -30,20 +33,43 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/store/authStore";
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const location = useLocation();
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const { user, loading } = useAuthStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-primary animate-bounce flex items-center justify-center text-primary-foreground font-bold italic text-2xl">C</div>
+          <p className="text-muted-foreground animate-pulse font-medium">Initializing Dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const pageTitle = pathname.split("/").pop() || "Dashboard";
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen bg-muted/30 w-full font-sans">
-        <AppSidebar currentPath={location.pathname} />
+        <AppSidebar currentPath={pathname} />
         <SidebarInset className="flex-1 overflow-auto bg-background/50">
           <header className="sticky top-0 z-10 flex h-16 items-center border-b bg-background/80 backdrop-blur-md px-6 gap-4">
             <SidebarTrigger />
             <Separator orientation="vertical" className="h-6" />
             <div className="flex-1 flex items-center justify-between">
               <h1 className="text-lg font-semibold capitalize text-foreground">
-                {location.pathname.split("/").pop() || "Dashboard"}
+                {pageTitle === "dashboard" ? "Overview" : pageTitle}
               </h1>
               <div className="flex items-center gap-4">
                 <div className="relative hidden md:block">
@@ -58,10 +84,10 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
                   <Bell className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
                   <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full ring-2 ring-background" />
                 </Button>
-                <Link to="/dashboard/settings">
+                <Link href="/dashboard/settings">
                   <Avatar className="h-8 w-8 ring-2 ring-primary/10 hover:ring-primary/30 transition-all cursor-pointer">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarImage src={user?.image || "https://github.com/shadcn.png"} />
+                    <AvatarFallback>{user?.name?.[0] || "U"}</AvatarFallback>
                   </Avatar>
                 </Link>
               </div>
@@ -79,7 +105,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
 function AppSidebar({ currentPath }: { currentPath: string }) {
   const { user, signOut } = useAuthStore();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const menuItems = [
     { label: "Overview", icon: LayoutDashboard, path: "/dashboard" },
@@ -92,13 +118,13 @@ function AppSidebar({ currentPath }: { currentPath: string }) {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    router.push("/");
   };
 
   return (
     <Sidebar variant="sidebar" className="border-r border-border/50">
       <SidebarHeader className="h-16 flex items-center px-6 border-b border-border/50">
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link href="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold italic group-hover:rotate-12 transition-transform">C</div>
           <span className="font-bold text-lg text-foreground">ChatPilot</span>
         </Link>
@@ -107,7 +133,7 @@ function AppSidebar({ currentPath }: { currentPath: string }) {
         <SidebarMenu className="px-2 py-4 gap-1">
           {menuItems.map((item) => (
             <SidebarMenuItem key={item.label}>
-              <Link to={item.path}>
+              <Link href={item.path}>
                 <SidebarMenuButton 
                   isActive={currentPath === item.path} 
                   tooltip={item.label}
@@ -130,7 +156,7 @@ function AppSidebar({ currentPath }: { currentPath: string }) {
           <p className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground/60 mb-2">Account</p>
           <SidebarMenu className="gap-1">
              <SidebarMenuItem>
-                <Link to="/dashboard/settings">
+                <Link href="/dashboard/settings">
                   <SidebarMenuButton 
                     isActive={currentPath === "/dashboard/settings"}
                     tooltip="Settings"

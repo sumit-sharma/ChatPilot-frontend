@@ -1,6 +1,6 @@
 {
   "name": "ChatFlow PaaS",
-  "description": "A professional WhatsApp Messages and Chatbot Platform as a Service with an admin dashboard, automated workflows, and AI-powered chat bots.",
+  "description": "A professional Next.js WhatsApp Messages and Chatbot Platform as a Service with an admin dashboard, automated workflows, and AI-powered chat bots.",
   "requestFramePermissions": [],
   "majorCapabilities": []
 }

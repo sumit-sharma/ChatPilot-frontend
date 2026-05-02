@@ -1,7 +1,7 @@
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll } from "motion/react";
 
 export function Navbar() {
   const { scrollY } = useScroll();
@@ -20,7 +20,7 @@ export function Navbar() {
       }`}
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold italic">C</div>
           <span className="font-bold text-xl bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">ChatPilot</span>
         </Link>
@@ -33,10 +33,10 @@ export function Navbar() {
         </div>
         
         <div className="flex items-center gap-4">
-          <Link to="/login">
+          <Link href="/login">
             <Button variant="ghost" className="text-sm">Log In</Button>
           </Link>
-          <Link to="/signup">
+          <Link href="/signup">
             <Button className="text-sm shadow-md shadow-primary/10">Get Started</Button>
           </Link>
         </div>

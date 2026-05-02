@@ -1,8 +1,10 @@
+"use client";
+
 import { Navbar } from "@/components/layout/Navbar";
 import { Button } from "@/components/ui/button";
 import { motion } from "motion/react";
 import { MessageSquare, Bot, Zap, Shield, ArrowRight, MessageCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 
 export default function Landing() {
   return (
@@ -47,7 +49,7 @@ export default function Landing() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="flex flex-wrap items-center justify-center gap-4"
             >
-              <Link to="/signup">
+              <Link href="/signup">
                 <Button size="lg" className="h-12 px-8 text-base">
                   Get Started for Free <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>

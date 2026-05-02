@@ -1,15 +1,18 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Link, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { Facebook } from "lucide-react";
 import React, { useState } from "react";
-import { authClient } from "../lib/auth-client";
+import { authClient } from "@/lib/auth-client";
 
 export default function Login() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -29,7 +32,7 @@ export default function Login() {
       if (error) {
         setError(error.message || "Invalid email or password.");
       } else {
-        navigate("/dashboard");
+        router.push("/dashboard");
       }
     } catch (err: any) {
       console.error(err);
@@ -58,7 +61,7 @@ export default function Login() {
         className="w-full max-w-md"
       >
         <div className="flex justify-center mb-8">
-          <Link to="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold italic text-xl shadow-lg shadow-primary/20">C</div>
             <span className="font-bold text-2xl">ChatPilot</span>
           </Link>
@@ -85,7 +88,7 @@ export default function Login() {
                 onClick={() => handleSocialLogin('google')}
                 disabled={loading}
               >
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4" /> Google
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-4 h-4" alt="Google" /> Google
               </Button>
               <Button 
                 variant="outline" 
@@ -144,7 +147,7 @@ export default function Login() {
           <CardFooter className="flex flex-col space-y-4">
             <p className="text-sm text-center text-muted-foreground">
               Don't have an account?{" "}
-              <Link to="/signup" className="text-primary hover:underline font-medium">Create one</Link>
+              <Link href="/signup" className="text-primary hover:underline font-medium">Create one</Link>
             </p>
           </CardFooter>
         </Card>

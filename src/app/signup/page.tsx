@@ -8,10 +8,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import React, { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useAuthStore } from "@/store/auth-store";
 
 export default function Signup() {
   const router = useRouter();
+  const { login } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
@@ -26,18 +27,29 @@ export default function Signup() {
     setLoading(true);
     setError("");
     try {
-      const { data, error } = await authClient.signUp.email({
-        email: formData.email,
-        password: formData.password,
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
-        callbackURL: "/dashboard"
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8000"}/api/v1/auth/register`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+            full_name: `${formData.firstName} ${formData.lastName}`.trim(),
+          }),
+        }
+      );
 
-      if (error) {
-        setError(error.message || "Failed to create account.");
-      } else {
-        router.push("/dashboard");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(body?.detail || "Failed to create account.");
+        return;
       }
+
+      const data = await res.json();
+      login(data);
+
+      router.push("/dashboard");
     } catch (err: any) {
       console.error(err);
       setError("An unexpected error occurred. Please try again later.");

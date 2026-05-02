@@ -9,10 +9,12 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { Facebook } from "lucide-react";
 import React, { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useAuthStore } from "@/store/auth-store";
+
 
 export default function Login() {
   const router = useRouter();
+  const { login } = useAuthStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,17 +25,25 @@ export default function Login() {
     setLoading(true);
     setError("");
     try {
-      const { data, error } = await authClient.signIn.email({
-        email,
-        password,
-        callbackURL: "/dashboard"
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_AUTH_URL || "http://localhost:8000"}/api/v1/auth/login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
-      if (error) {
-        setError(error.message || "Invalid email or password.");
-      } else {
-        router.push("/dashboard");
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        setError(body?.detail || "Invalid email or password.");
+        return;
       }
+
+      const data = await res.json();
+      login(data);
+
+      router.push("/dashboard");
     } catch (err: any) {
       console.error(err);
       setError("An unexpected error occurred. Please try again later.");
@@ -43,14 +53,8 @@ export default function Login() {
   };
 
   const handleSocialLogin = async (provider: 'google' | 'github' | 'facebook') => {
-    try {
-      await authClient.signIn.social({
-        provider,
-        callbackURL: "/dashboard"
-      });
-    } catch (err) {
-      setError("Social login failed. Please try again.");
-    }
+    // TODO: Implement social login via FastAPI backend
+    setError(`${provider} login is not configured yet.`);
   };
 
   return (

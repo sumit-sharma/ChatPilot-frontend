@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Facebook, Shield, CheckCircle2, AlertCircle } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
-import { authClient } from "@/lib/auth-client";
 
 export default function Settings() {
   const { user } = useAuthStore();
@@ -15,20 +14,8 @@ export default function Settings() {
   const [success, setSuccess] = useState("");
 
   const handleLinkFacebook = async () => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
-    try {
-      await authClient.signIn.social({
-        provider: "facebook",
-        callbackURL: window.location.href,
-      });
-    } catch (err: any) {
-      console.error(err);
-      setError("Failed to start account linking process.");
-    } finally {
-      setLoading(false);
-    }
+    // TODO: Implement Facebook linking via FastAPI backend
+    setError("Facebook linking is not configured yet.");
   };
 
   // We can check if Facebook is linked by inspecting user.accounts or similar metadata from Better Auth

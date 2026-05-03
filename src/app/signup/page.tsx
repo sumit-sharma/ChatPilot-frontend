@@ -8,12 +8,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import React, { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useAuthStore } from "@/store/authStore";
 
 export default function Signup() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { signup, loading, error } = useAuthStore();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -23,26 +22,14 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const { data, error } = await authClient.signUp.email({
-        email: formData.email,
-        password: formData.password,
-        name: `${formData.firstName} ${formData.lastName}`.trim(),
-        callbackURL: "/dashboard"
-      });
+    const result = await signup({
+      email: formData.email,
+      password: formData.password,
+      name: `${formData.firstName} ${formData.lastName}`.trim(),
+    });
 
-      if (error) {
-        setError(error.message || "Failed to create account.");
-      } else {
-        router.push("/dashboard");
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError("An unexpected error occurred. Please try again later.");
-    } finally {
-      setLoading(false);
+    if (!result.error) {
+      router.push("/dashboard");
     }
   };
 

@@ -142,7 +142,7 @@ export default function ChatbotPage() {
 
       <footer className="py-12">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          © 2024 ChatPilot Inc. Artificial Intelligence Unit.
+          &copy; 2026 ChatPilot Inc. All rights reserved.
         </div>
       </footer>
     </div>

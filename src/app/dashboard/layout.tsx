@@ -35,16 +35,17 @@ import { useAuthStore } from "@/store/authStore";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { user, loading } = useAuthStore();
+  const { user, loading, isHydrated } = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    // Only redirect if hydration is complete and no user is found
+    if (isHydrated && !loading && !user) {
       router.push("/login");
     }
-  }, [user, loading, router]);
+  }, [user, loading, isHydrated, router]);
 
-  if (loading) {
+  if (!isHydrated || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">

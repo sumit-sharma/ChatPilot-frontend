@@ -9,48 +9,25 @@ import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { Facebook } from "lucide-react";
 import React, { useState } from "react";
-import { authClient } from "@/lib/auth-client";
+import { useAuthStore } from "@/store/authStore";
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { login, loading, error, setError } = useAuthStore();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    try {
-      const { data, error } = await authClient.signIn.email({
-        email,
-        password,
-        callbackURL: "/dashboard"
-      });
-
-      if (error) {
-        setError(error.message || "Invalid email or password.");
-      } else {
-        router.push("/dashboard");
-      }
-    } catch (err: any) {
-      console.error(err);
-      setError("An unexpected error occurred. Please try again later.");
-    } finally {
-      setLoading(false);
+    const result = await login(email, password);
+    if (!result.error) {
+      router.push("/dashboard");
     }
   };
 
   const handleSocialLogin = async (provider: 'google' | 'github' | 'facebook') => {
-    try {
-      await authClient.signIn.social({
-        provider,
-        callbackURL: "/dashboard"
-      });
-    } catch (err) {
-      setError("Social login failed. Please try again.");
-    }
+    // Social login would need a different implementation with custom backend
+    setError("Social login is currently being migrated.");
   };
 
   return (
